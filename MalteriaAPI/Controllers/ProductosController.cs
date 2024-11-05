@@ -54,6 +54,7 @@ namespace MalteriaAPI.Controllers
                 Nombre = request.Nombre,
                 Descripcion = request.Descripcion,
                 Precio = request.Precio,
+                Precio2 = request.Precio2,
                 ImagenUrl = request.ImagenUrl,
                 Categoria = request.Categoria,
                 Tipo = request.Tipo,
@@ -80,6 +81,8 @@ namespace MalteriaAPI.Controllers
             productoExistente.Nombre = request.Nombre;
             productoExistente.Descripcion = request.Descripcion;
             productoExistente.Precio = request.Precio;
+            if(request.Precio2 != 0 || request.Precio2 != null)
+            productoExistente.Precio2 = (decimal)request.Precio2;
             productoExistente.ImagenUrl = request.ImagenUrl;
             productoExistente.Categoria = request.Categoria;
             productoExistente.Tipo = request.Tipo;

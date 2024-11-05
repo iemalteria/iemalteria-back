@@ -24,6 +24,9 @@ public partial class DBContext : DbContext
     public virtual DbSet<TextosWeb> TextosWeb { get; set; }
     public virtual DbSet<EmpleadoDto> Empleado { get; set; }
     public virtual DbSet<ProductosDto> Productos { get; set; }
+    public virtual DbSet<CreseDto> Crese { get; set; }
+    public virtual DbSet<CreseImagenesDto> CreseImagenes { get; set; }
+    public virtual DbSet<CategoriaBlog> CategoriasBlog { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
@@ -55,6 +58,8 @@ public partial class DBContext : DbContext
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Blogs)
                 .HasForeignKey(d => d.IdUsuario)
                 .HasConstraintName("FK_Blog_Usuario");
+
+            entity.Property(e => e.CategoriaId).HasColumnName("CategoriaId");
         });
 
         modelBuilder.Entity<TextosWeb>(entity =>
@@ -141,6 +146,9 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Precio)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("Precio");
+            entity.Property(e => e.Precio2)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("Precio2");
             entity.Property(e => e.ImagenUrl)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -153,6 +161,62 @@ public partial class DBContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("Tipo");
+            entity.Property(e => e.Activo)
+                .HasColumnName("Activo")
+                .HasDefaultValueSql("1");
+        });
+        modelBuilder.Entity<CreseDto>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.ToTable("Crese");
+
+            entity.Property(e => e.Titulo)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Texto)
+                .IsUnicode(false);
+
+            entity.Property(e => e.VideoUrl)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+
+            
+        });
+
+        modelBuilder.Entity<CreseImagenesDto>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("CreseImagenes");
+
+            entity.Property(e => e.ImagenUrl)
+                .IsUnicode(false);
+
+            entity.Property(e => e.CreseId).HasColumnName("CreseId");
+
+            // Configurar relación con Crese
+         
+        });
+        modelBuilder.Entity<CategoriaBlog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__CategoriasBlog");
+
+            entity.ToTable("CategoriasBlog");
+
+            entity.Property(e => e.Id).HasColumnName("Id");
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("Nombre");
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("Descripcion");
+            entity.Property(e => e.FechaCreacion)
+                .HasColumnType("datetime")
+                .HasColumnName("FechaCreacion")
+                .HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.Activo)
                 .HasColumnName("Activo")
                 .HasDefaultValueSql("1");

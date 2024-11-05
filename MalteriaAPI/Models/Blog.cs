@@ -18,4 +18,6 @@ public partial class Blog
     public string? Estado { get; set; }
 
     public virtual Usuario? IdUsuarioNavigation { get; set; }
+
+    public int? CategoriaId { get; set; }
 }

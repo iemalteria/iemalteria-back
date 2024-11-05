@@ -20,7 +20,7 @@ namespace MalteriaAPI.Controllers
         {
             _dbContext = dbContext;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         [Route("Lista")]
         public async Task<IActionResult> Lista()
@@ -35,6 +35,7 @@ namespace MalteriaAPI.Controllers
 
         // Método para obtener un blog por ID
         [HttpGet]
+        [AllowAnonymous]
         [Route("{id}")]
         public async Task<IActionResult> ObtenerPorId(int id)
         {
@@ -66,7 +67,8 @@ namespace MalteriaAPI.Controllers
                 Contenido = request.contenido,
                 FechaPublicacion = request.fechaPublicacion, // Asigna la fecha proporcionada en el DTO
                 Estado = request.estado, // Asigna el estado proporcionado en el DTO
-                IdUsuario = request.idUsuario // Asigna el ID del usuario del DTO
+                IdUsuario = request.idUsuario, // Asigna el ID del usuario del DTO
+                CategoriaId = request.CategoriaId
             };
 
             // Agregar el nuevo blog a la base de datos
@@ -75,6 +77,24 @@ namespace MalteriaAPI.Controllers
 
             // Devolver la respuesta con el nuevo blog creado
             return CreatedAtAction(nameof(ObtenerPorId), new { id = nuevoBlog.Id }, nuevoBlog);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("PorCategoria/{categoriaId}")]
+        public async Task<IActionResult> ObtenerPorCategoriaId(int categoriaId)
+        {
+            var blogs = await _dbContext.Blogs
+                .Where(b => b.CategoriaId == categoriaId)
+                .OrderByDescending(b => b.FechaPublicacion)
+                .ToListAsync();
+
+            if (!blogs.Any())
+            {
+                return NotFound(new { message = "No se encontraron blogs para esta categoría" });
+            }
+
+            return StatusCode(StatusCodes.Status200OK, new { value = blogs });
         }
     }
 }

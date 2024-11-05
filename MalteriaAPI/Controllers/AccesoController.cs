@@ -30,7 +30,8 @@ namespace MalteriaAPI.Controllers
             {
                 Nombre = objeto.nombre,
                 Correo = objeto.correo,
-                Clave = _utilidades.encriptarSHA256(objeto.clave)
+                Clave = _utilidades.encriptarSHA256(objeto.clave),
+                Rol = objeto.rol
 
             };
 

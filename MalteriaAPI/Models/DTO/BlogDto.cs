@@ -7,5 +7,7 @@
         public int idUsuario { get; set; }
         public DateTime fechaPublicacion { get; set; }
         public string estado { get; set; }
+        public int CategoriaId { get; set; }  // Nueva columna para la relación de categoría
+
     }
 }

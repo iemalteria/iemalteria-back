@@ -1,10 +1,11 @@
-﻿using MalteriaAPI.Contexts;
+﻿using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using MalteriaAPI.Contexts;
 using MalteriaAPI.Custom;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace MalteriaAPI.Controllers
 {
@@ -21,13 +22,15 @@ namespace MalteriaAPI.Controllers
             _dbContext = dbContext;
             _utilidades = utilidades;
         }
+
         [HttpGet]
+        [AllowAnonymous]
         [Route("ObtenerUsuario")]
         public async Task<IActionResult> ObtenerUsuario([FromQuery] int id)
         {
             var usuario = await _dbContext.Usuarios
                 .Where(u => u.Id == id)
-                .Select(u => new { u.Correo, u.Nombre })
+                .Select(u => new { u.Id,u.Correo, u.Nombre, u.Rol })
                 .FirstOrDefaultAsync();
 
             if (usuario == null)
@@ -42,7 +45,6 @@ namespace MalteriaAPI.Controllers
         [HttpGet]
         public IActionResult ObtenerInfoUsuario()
         {
-            // Obtener el token del encabezado de autorización
             var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
             if (token == null)
@@ -50,7 +52,6 @@ namespace MalteriaAPI.Controllers
                 return Unauthorized(new { isSuccess = false, mensaje = "Token no proporcionado" });
             }
 
-            // Decodificar el token
             var claimsPrincipal = _utilidades.decodificarToken(token);
 
             if (claimsPrincipal == null)
@@ -58,7 +59,6 @@ namespace MalteriaAPI.Controllers
                 return Unauthorized(new { isSuccess = false, mensaje = "Token inválido" });
             }
 
-            // Obtener los valores del usuario a partir de los reclamos
             var userIdClaim = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier);
             var userEmailClaim = claimsPrincipal.FindFirst(ClaimTypes.Email);
 
@@ -70,7 +70,6 @@ namespace MalteriaAPI.Controllers
             var userId = int.Parse(userIdClaim.Value);
             var userEmail = userEmailClaim.Value;
 
-            // Devolver la información del usuario
             var usuario = new
             {
                 Id = userId,
@@ -79,5 +78,49 @@ namespace MalteriaAPI.Controllers
 
             return Ok(new { isSuccess = true, usuario });
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("ObtenerTodosUsuarios")]
+        public async Task<IActionResult> ObtenerTodosUsuarios()
+        {
+            var usuarios = await _dbContext.Usuarios
+                .Select(u => new { u.Id, u.Correo, u.Nombre, u.Rol })
+                .ToListAsync();
+
+            return Ok(new { isSuccess = true, value = usuarios });
+        }
+
+        [HttpPut]
+        [Route("EditarUsuario")]
+        public async Task<IActionResult> EditarUsuario(int id, [FromBody] UsuarioEditDto usuarioEditDto)
+        {
+            // Buscar el usuario en la base de datos por su ID
+            var usuario = await _dbContext.Usuarios.FindAsync(id);
+
+            if (usuario == null)
+            {
+                return NotFound(new { isSuccess = false, mensaje = "Usuario no encontrado" });
+            }
+
+            // Actualizar los campos del usuario con los valores recibidos
+            usuario.Nombre = usuarioEditDto.Nombre;
+            usuario.Correo = usuarioEditDto.Correo;
+            usuario.Rol = usuarioEditDto.Rol;
+
+            // Guardar los cambios en la base de datos
+            _dbContext.Usuarios.Update(usuario);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { isSuccess = true, mensaje = "Usuario actualizado correctamente" });
+        }
+    }
+
+    // DTO para recibir los datos del usuario a editar
+    public class UsuarioEditDto
+    {
+        public string Nombre { get; set; }
+        public string Correo { get; set; }
+        public string Rol { get; set; }
     }
 }
