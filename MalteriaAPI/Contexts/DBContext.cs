@@ -26,6 +26,7 @@ public partial class DBContext : DbContext
     public virtual DbSet<ProductosDto> Productos { get; set; }
     public virtual DbSet<CreseDto> Crese { get; set; }
     public virtual DbSet<CreseImagenesDto> CreseImagenes { get; set; }
+    public virtual DbSet<ProductoImagenesDto> ProductoImagenes { get; set; }
     public virtual DbSet<CategoriaBlog> CategoriasBlog { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
@@ -149,10 +150,6 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Precio2)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("Precio2");
-            entity.Property(e => e.ImagenUrl)
-                .HasMaxLength(255)
-                .IsUnicode(false)
-                .HasColumnName("ImagenUrl");
             entity.Property(e => e.Categoria)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -164,6 +161,10 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Activo)
                 .HasColumnName("Activo")
                 .HasDefaultValueSql("1");
+            entity.Property(e => e.VideoUrl)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("videoUrl");
         });
         modelBuilder.Entity<CreseDto>(entity =>
         {
@@ -197,6 +198,20 @@ public partial class DBContext : DbContext
 
             // Configurar relación con Crese
          
+        });
+
+        modelBuilder.Entity<ProductoImagenesDto>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("ProductoImagenes");
+
+            entity.Property(e => e.ImagenUrl)
+                .IsUnicode(false);
+
+            entity.Property(e => e.ProductoId).HasColumnName("ProductoId");
+
+           
+
         });
         modelBuilder.Entity<CategoriaBlog>(entity =>
         {

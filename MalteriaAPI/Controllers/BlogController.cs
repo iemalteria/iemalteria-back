@@ -96,5 +96,57 @@ namespace MalteriaAPI.Controllers
 
             return StatusCode(StatusCodes.Status200OK, new { value = blogs });
         }
+
+
+        // Método para editar un blog existente
+        [HttpPut]
+        [Route("Editar/{id}")]
+        public async Task<IActionResult> Editar(int id, [FromBody] BlogDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var blogExistente = await _dbContext.Blogs.FindAsync(id);
+
+            if (blogExistente == null)
+            {
+                return NotFound(new { message = "Blog no encontrado" });
+            }
+
+            // Actualizar los campos del blog existente con los valores del DTO
+            blogExistente.Titulo = request.titulo;
+            blogExistente.Contenido = request.contenido;
+            blogExistente.FechaPublicacion = request.fechaPublicacion;
+            blogExistente.Estado = request.estado;
+            blogExistente.IdUsuario = request.idUsuario;
+            blogExistente.CategoriaId = request.CategoriaId;
+
+            // Guardar los cambios en la base de datos
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { message = "Blog actualizado exitosamente", blog = blogExistente });
+        }
+
+        // Método para eliminar un blog
+        [HttpDelete]
+        [Route("Eliminar/{id}")]
+        public async Task<IActionResult> Eliminar(int id)
+        {
+            var blog = await _dbContext.Blogs.FindAsync(id);
+
+            if (blog == null)
+            {
+                return NotFound(new { message = "Blog no encontrado" });
+            }
+
+            // Eliminar el blog de la base de datos
+            _dbContext.Blogs.Remove(blog);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { message = "Blog eliminado exitosamente" });
+        }
+
     }
 }

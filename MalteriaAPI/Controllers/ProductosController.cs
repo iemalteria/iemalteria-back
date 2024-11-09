@@ -55,10 +55,11 @@ namespace MalteriaAPI.Controllers
                 Descripcion = request.Descripcion,
                 Precio = request.Precio,
                 Precio2 = request.Precio2,
-                ImagenUrl = request.ImagenUrl,
                 Categoria = request.Categoria,
                 Tipo = request.Tipo,
-                Activo = request.Activo 
+                Activo = request.Activo,
+                VideoUrl = request.VideoUrl,
+
             };
 
             _dbContext.Productos.Add(nuevoProducto);
@@ -83,10 +84,11 @@ namespace MalteriaAPI.Controllers
             productoExistente.Precio = request.Precio;
             if(request.Precio2 != 0 || request.Precio2 != null)
             productoExistente.Precio2 = (decimal)request.Precio2;
-            productoExistente.ImagenUrl = request.ImagenUrl;
+
             productoExistente.Categoria = request.Categoria;
             productoExistente.Tipo = request.Tipo;
             productoExistente.Activo = request.Activo;
+            productoExistente.VideoUrl = request.VideoUrl;
 
             await _dbContext.SaveChangesAsync();
 
