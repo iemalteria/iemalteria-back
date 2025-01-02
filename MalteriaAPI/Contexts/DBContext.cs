@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using MalteriaAPI.Models;
 using MalteriaAPI.Models.DTO;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,9 @@ public partial class DBContext : DbContext
     public virtual DbSet<CreseImagenesDto> CreseImagenes { get; set; }
     public virtual DbSet<ProductoImagenesDto> ProductoImagenes { get; set; }
     public virtual DbSet<CategoriaBlog> CategoriasBlog { get; set; }
+    public virtual DbSet<Visitas> Visitas { get; set; }
+    public virtual DbSet<ComentarioDto> Comentario { get; set; }
+    public virtual DbSet<RespuestaDto> Respuestas { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
@@ -235,6 +239,72 @@ public partial class DBContext : DbContext
             entity.Property(e => e.Activo)
                 .HasColumnName("Activo")
                 .HasDefaultValueSql("1");
+        });
+        modelBuilder.Entity<Visitas>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Visitas");
+            entity.ToTable("Visitas");
+
+            entity.Property(e => e.Pagina)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .IsRequired();
+
+            entity.Property(e => e.FechaVisita)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETDATE()");
+
+            entity.Property(e => e.IpUsuario)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Navegador)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+        });
+        modelBuilder.Entity<ComentarioDto>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Comentarios");
+            entity.ToTable("Comentarios");
+
+            entity.Property(e => e.UsuarioId)
+                .IsUnicode(false)
+                .IsRequired();
+
+            entity.Property(e => e.Fecha)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETDATE()");
+
+        
+
+            entity.Property(e => e.Texto)
+                .IsUnicode(false);
+        });
+        modelBuilder.Entity<RespuestaDto>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Respuestas");
+
+            entity.ToTable("Respuestas");
+
+            entity.Property(e => e.Id).HasColumnName("Id");
+            entity.Property(e => e.UsuarioId).HasColumnName("UsuarioId").IsRequired();
+            entity.Property(e => e.Texto).HasColumnName("Texto").IsUnicode(false).IsRequired();
+            entity.Property(e => e.Fecha)
+                .HasColumnName("Fecha")
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.ComentarioId).HasColumnName("ComentarioId").IsRequired();
+
+            // Configuración de relaciones
+            entity.HasOne<Usuario>()
+                .WithMany()
+                .HasForeignKey(e => e.UsuarioId)
+                .HasConstraintName("FK_Respuestas_Usuarios");
+
+            entity.HasOne<ComentarioDto>()
+                .WithMany()
+                .HasForeignKey(e => e.ComentarioId)
+                .HasConstraintName("FK_Respuestas_Comentarios");
         });
 
 
